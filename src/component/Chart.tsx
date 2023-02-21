@@ -24,16 +24,16 @@ ChartJS.register(
 
 export default function Chart() {
 
-  const [ dataChart, setDataChart] = useState<[]>([]);
+  const [dataChart, setDataChart] = useState<[]>([]);
   const [dataSelected, setdataSelected] = useState([])
   const [lengthData, setlengthData] = useState<number>(0);
 
-  useEffect( () => {
-    const consultData = async() =>{
+  useEffect(() => {
+    const consultData = async () => {
       const url = "https://run.mocky.io/v3/cc4c350b-1f11-42a0-a1aa-f8593eafeb1e"
       const response = await fetch(url)
       const result = await response.json()
-      const CleanData = result.map((data:any)=>{
+      const CleanData = result.map((data: any) => {
         const object = {
           date: data.date,
           price: data.price
@@ -42,30 +42,39 @@ export default function Chart() {
       })
       setDataChart(CleanData)
     }
-  consultData();
+    consultData();
   }, [])
 
   useEffect(() => {
     const dataSelected = dataChart.slice(0, 800)
     setdataSelected(dataSelected)
-   }, [lengthData])
+  }, [lengthData, dataSelected])
 
 
-   const formatDate = ()=> {
+  const formatDate = () => {
     const arrayDate: number[] = []
     dataSelected.forEach(element => {
       const d = new Date(element.date)
-        let day = d.getHours();
-        if(!arrayDate.includes(day)) {
-          arrayDate.push(day)
-        }
+      let day = d.getHours();
+      if (!arrayDate.includes(day)) {
+        arrayDate.push(day)
+      }
     });
     return arrayDate;
   }
+
   /* data of chart */
   const labels = formatDate();
   const options = {
     responsive: true,
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Horas'
+        }
+      },
+    },
     plugins: {
       legend: {
         position: 'top' as const,
@@ -76,29 +85,32 @@ export default function Chart() {
       },
     },
   };
-  
+
   const data = {
     labels,
     datasets: [
       {
         label: 'Costos',
-        data: dataSelected.map(( data ) => data.price),
+        data: dataSelected.map( data => data.price),
         borderColor: 'rgb(255, 99, 132)',
         backgroundColor: 'rgba( 255, 99, 132, 0.5)',
       },
     ],
   };
 
-  const handleChangeLengthData = (e:any) => {
-    setlengthData( Number(e.target.value))
+  const handleChangeLengthData = (e: any) => {
+    setlengthData(Number(e.target.value))
   }
 
   return (
-    <div className='container flex items-center justify-center h-50 w-50'>
-      <Line options={options} data={data} />
-      <div>
+    <div className='flex items-center justify-center flex-col'>
+
+      <div className='bg-white mt-10 p-10 w-1/2 '>
+        <Line options={options} data={data} />
+      </div>
+      <div className='my-10 text-stone-50'>
         <label htmlFor="select" className="">Selecciona una cantidad</label>
-        <select id="select" className="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
+        <select id="select" className=" block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
           value={String(lengthData)} onChange={handleChangeLengthData}
         >
           <option value="10">10</option>
@@ -107,7 +119,7 @@ export default function Chart() {
           <option value="40">40</option>
           <option value="50">50</option>
 
-      </select>
+        </select>
       </div>
     </div>
   );
